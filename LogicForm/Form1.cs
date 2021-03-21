@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace LogicForm
@@ -17,24 +13,30 @@ namespace LogicForm
         {
             InitializeComponent();
 
-            ToolTip toolTip2 = new ToolTip();
+            /*ToolTip toolTip2 = new ToolTip();
             toolTip2.SetToolTip(this.formula, "Для того, чтобы проверить эквивалентность формул, заполните строку в формате : формула1 = формула2");
             toolTip2.SetToolTip(this.button15, "Для того, чтобы проверить эквивалентность формул, заполните строку в формате : формула1 = формула2");
             toolTip2.ShowAlways = true;
             toolTip2.AutoPopDelay = 10000;
             toolTip2.InitialDelay = 5;
-            toolTip2.ReshowDelay = 50;
+            toolTip2.ReshowDelay = 50;*/
         }
 
         DataGridView dg = new DataGridView();
-        char[] actions = new char[]{ '¬', '∧', '∨', '⊕', '⇒', '⇿' }; // Операции
+        const string actions = "¬∧∨⊕⇒⇿"; // Операции
+        const char uno = '¬';
+        const string binary = "∧∨⊕⇒⇿";
+        const string abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const string allSimbols = "ABC¬∧∨()⊕⇒⇿DEFGHIJKLMNOPQRSTUVWXYZ";
 
         int varCount;// Количество переменных
-        int rowsCount;
+        int rowsCount;// 2 в степени varCount
         string[] numeric = new string[0]; // Массив наборов значений
         char[] varArray = new char[0]; // Массив переменных
-        string postfix;// Постфиксная запись формулы
         char[] solutions; // Решения
+
+        string postfix;
+        string infix;
 
         bool CTB(char a)
         {
@@ -44,27 +46,26 @@ namespace LogicForm
             }
 
             return true;
-        }
+        }// char to bool
         char BTC(bool a)
         {
             if (a) { return '1'; }
             else { return '0'; }
-        }
-
-        void Analyze(string s)// Заполняет поля
+        } // bool to char
+        void Analyze()// Заполняет поля
         {
             List<char> varList = new List<char>();
 
-            for (int i = 0; i < s.Length; i++)
+            for (int i = 0; i < infix.Length; i++)
             {
-                if (s[i] >= 'A' && s[i] <= 'Z' && !varList.Contains(s[i]))
+                if (infix[i] >= 'A' && infix[i] <= 'Z' && !varList.Contains(infix[i]))
                 {
-                    varList.Add(s[i]);
+                    varList.Add(infix[i]);
                 }
             }
             varList.Sort();
 
-            postfix = ToPostfixForm(s);
+            postfix = ToPostfixForm(infix);
             varCount = varList.Count;
             rowsCount = (int)Math.Pow(2, varCount);
             varArray = varList.ToArray();
@@ -80,9 +81,9 @@ namespace LogicForm
                     numeric[i] = '0' + numeric[i];
                 }
             }
-            solutions = Results();
+            solutions = Solutions();
         }
-        char[] Results()
+        char[] Solutions()
         {
             char[] res = new char[numeric.Length];
 
@@ -97,165 +98,165 @@ namespace LogicForm
             }
 
             return res;
+
+            char Calculate(string s)
+            {
+                char Operation(char op1, char op2, char action)
+                {
+
+                    bool Not(bool b)
+                    {
+                        b = !b;
+                        return b;
+                    }
+                    bool Or(bool a, bool b)
+                    {
+                        if (a | b)
+                        {
+                            return true;
+                        }
+                        return false;
+                    }
+                    bool And(bool a, bool b)
+                    {
+                        if (a & b)
+                        {
+                            return true;
+
+                        }
+                        return false;
+                    }
+                    bool Xor(bool a, bool b)
+                    {
+                        if (a == b)
+                        {
+                            return false;
+                        }
+                        return true;
+                    }
+                    bool Implc(bool a, bool b)
+                    {
+                        if (a & !b)
+                        {
+                            return false;
+                        }
+                        return true;
+                    }
+                    bool Equally(bool a, bool b)
+                    {
+                        if (a == b)
+                        {
+                            return true;
+                        }
+                        return false;
+                    }
+
+                    if (op2 == '$')
+                    {
+                        return (BTC(Not(CTB(op1))));
+                    }
+
+                    switch (action)
+                    {
+                        case '∧':
+                            return (BTC(And(CTB(op1), CTB(op2))));
+                        case '∨':
+                            return (BTC(Or(CTB(op1), CTB(op2))));
+                        case '⊕':
+                            return (BTC(Xor(CTB(op1), CTB(op2))));
+                        case '⇒':
+                            return (BTC(Implc(CTB(op1), CTB(op2))));
+                        case '⇿':
+                            return (BTC(Equally(CTB(op1), CTB(op2))));
+                        default:
+                            return '0';
+                    }
+
+                } // операции
+
+                Stack<char> st = new Stack<char>();
+                for (int i = 0; i < s.Length; i++) // считает значение выражения
+                {
+                    if (s[i] == '0' || s[i] == '1')
+                    {
+                        st.Push(s[i]);
+                    }
+                    else if (s[i] == '¬')
+                    {
+                        st.Push(Operation(st.Pop(), '$', '¬'));
+                    }
+                    else
+                    {
+                        st.Push(Operation(st.Pop(), st.Pop(), s[i]));
+                    }
+                }
+                return st.Pop();
+            } // Считает значение выражения
         }// Возвращает массив решений
-        char Calculate(string s)
+        static int Priority(char oper)
         {
-            char Operation(char op1, char op2, char action)
+            switch (oper)
             {
-
-                bool Not(bool b)
-                {
-                    b = !b;
-                    return b;
-                }
-                bool Or(bool a, bool b)
-                {
-                    if (a | b)
-                    {
-                        return true;
-                    }
-                    return false;
-                }
-                bool And(bool a, bool b)
-                {
-                    if (a & b)
-                    {
-                        return true;
-
-                    }
-                    return false;
-                }
-                bool Xor(bool a, bool b)
-                {
-                    if (a == b)
-                    {
-                        return false;
-                    }
-                    return true;
-                }
-                bool Implc(bool a, bool b)
-                {
-                    if (a & !b)
-                    {
-                        return false;
-                    }
-                    return true;
-                }
-                bool Equally(bool a, bool b)
-                {
-                    if (a == b)
-                    {
-                        return true;
-                    }
-                    return false;
-                }
-
-                if (op2 == '$')
-                {
-                    return (BTC(Not(CTB(op1))));
-                }
-
-                switch (action)
-                {
-                    case '∧':
-                        return (BTC(And(CTB(op1), CTB(op2))));
-                    case '∨':
-                        return (BTC(Or(CTB(op1), CTB(op2))));
-                    case '⊕':
-                        return (BTC(Xor(CTB(op1), CTB(op2))));
-                    case '⇒':
-                        return (BTC(Implc(CTB(op1), CTB(op2))));
-                    case '⇿':
-                        return (BTC(Equally(CTB(op1), CTB(op2))));
-                    default:
-                        return '0';
-                }
-
-            } // операции
-
-            Stack<char> st = new Stack<char>();
-            for (int i = 0; i < s.Length; i++) // считает значение выражения
-            {
-                if(s[i] == '0' || s[i] == '1')
-                {
-                    st.Push(s[i]);
-                }
-                else if(s[i] == '¬')
-                {
-                    st.Push(Operation(st.Pop(), '$', '¬'));
-                }
-                else
-                {
-                    st.Push(Operation(st.Pop(), st.Pop(), s[i]));
-                }
+                case '¬':
+                    return 5;
+                case '∧':
+                    return 4;
+                case '∨':
+                    return 3;
+                case '⊕':
+                    return 3;
+                case '⇒':
+                    return 2;
+                case '⇿':
+                    return 1;
+                default:
+                    return 0;
             }
-            return st.Pop();
-        } // Считает значение выражения
-        string ToPostfixForm(string formula)
+        }
+        string ToPostfixForm(string infixFormula)
         {
-            int Priority(char oper)
-            {
-                switch (oper)
-                {
-                    case '¬':
-                        return 5;
-                    case '∧':
-                        return 4;
-                    case '∨':
-                        return 3;
-                    case '⊕':
-                        return 3;
-                    case '⇒':
-                        return 2;
-                    case '⇿':
-                        return 1;
-                    default:
-                        return 0;
-                }
-            }
-
             Stack<char> st = new Stack<char>();
             Queue<char> qu = new Queue<char>();
             string result = "";
 
-            for (int i = 0; i < formula.Length; i++)
+            for (int i = 0; i < infixFormula.Length; i++)
             {
-                if ('A' <= formula[i] && 'Z' >= formula[i])
+                if ('A' <= infixFormula[i] && 'Z' >= infixFormula[i])
                 {
-                    qu.Enqueue(formula[i]);
+                    qu.Enqueue(infixFormula[i]);
                     continue;
                 }
 
-                if (actions.Contains(formula[i]))
+                if (actions.Contains(infixFormula[i]))
                 {
                     if (st.Count == 0 || st.Peek() == '(')
                     {
-                        st.Push(formula[i]);
+                        st.Push(infixFormula[i]);
                         continue;
                     }
 
-                    if (Priority(formula[i]) > Priority(st.Peek()))
+                    if (Priority(infixFormula[i]) > Priority(st.Peek()))
                     {
-                        st.Push(formula[i]);
+                        st.Push(infixFormula[i]);
                         continue;
                     }
                     else
                     {
-                        while (st.Count != 0 && ((Priority(st.Peek()) >= Priority(formula[i])) || st.Peek() == '('))
+                        while (st.Count != 0 && ((Priority(st.Peek()) >= Priority(infixFormula[i])) || st.Peek() == '('))
                         {
                             qu.Enqueue(st.Pop());
                         }
-                        st.Push(formula[i]);
+                        st.Push(infixFormula[i]);
                         continue;
                     }
                 }
 
-                if (formula[i] == '(')
+                if (infixFormula[i] == '(')
                 {
-                    st.Push(formula[i]);
+                    st.Push(infixFormula[i]);
                 }
 
-                if (formula[i] == ')')
+                if (infixFormula[i] == ')')
                 {
                     while (st.Peek() != '(')
                     {
@@ -276,6 +277,53 @@ namespace LogicForm
 
             return result;
         } // Из инфиксной в постфиксную
+        class mystr
+        {
+            public mystr(string val, int pr)
+            {
+                Value = val;
+                Priority = pr;
+            }
+            public string Value { get; set; }
+            public int Priority { get; set; }
+            
+        }// нужен для перевода из постфиксной в инфиксную
+        string ToInfixForm(string postfixFormula)
+        { 
+            Stack<mystr> st = new Stack<mystr>();
+            foreach(var ch in postfixFormula)
+            {
+                if (ch>= 'A' && ch <= 'Z')
+                {
+                    st.Push(new mystr(ch.ToString(),0));
+                }
+                else
+                {
+                    if(ch == '¬')
+                    {
+                        var el = st.Pop();
+                        el.Value = ch + el.Value;
+                        el.Priority = Priority(ch);
+                        st.Push(el);
+                        continue;
+                    }
+                    var el1 = st.Pop();
+                    var el2 = st.Pop();
+
+                    if(el1.Priority<Priority(ch) && el1.Priority!=0)
+                    {
+                        el1.Value = '(' + el1.Value + ')';
+                    }
+                    if (el2.Priority < Priority(ch) && el2.Priority != 0)
+                    {
+                        el2.Value = '(' + el2.Value + ')';
+                    }
+                    mystr newStr = new mystr(el2.Value + ch + el1.Value, Priority(ch));
+                    st.Push(newStr);
+                }
+            }
+            return st.Pop().Value;
+        }
         void CreateTable()
         {
             this.Controls.Remove(dg);
@@ -313,77 +361,74 @@ namespace LogicForm
             this.Controls.Add(dg);
             label2.Visible = true;
         }// Создает таблицу
-        bool Check(string s)
+        bool Check(string str)
         {
-            if(s.Length==0)
-            {
-                MessageBox.Show("Введите формулу");
-                return false;
-            }
-            
-            s = s.ToUpper();
-            s = s.Trim();
+            bool res = false;
 
-            for(int i = 0; i < s.Length; i++)
+            str = str.ToUpper();
+            str = str.Trim();
+            str = str.Replace("¬¬", "");
+           
+            foreach (var ch in str)
             {
-                if(s[i] >= 'A' & s[i] <= 'Z')
+                if (abc.Contains(ch))
                 {
+                    res = true;
                     break;
                 }
-                if (i == s.Length - 1)
-                {
-                    MessageBox.Show("Переменные не найдены");
-                    return false;
-                }
             }
-
-            for (int i=0;i<s.Length;i++)
+            if (!res)
             {
-                if(!(s[i]>='A'& s[i] <= 'Z') & s[i]!= '¬' & s[i] != '∧'& s[i] != '∨'& s[i] != '⊕'& s[i] != '⇒'& s[i] != '⇿' & s[i] != '(' & s[i] != ')')
+                MessageBox.Show("Переменные не найдены");
+                return false;
+            }// Проверка на наличие переменных
+
+            foreach (var ch in str)
+            {
+                if(!allSimbols.Contains(ch))
                 {
-                    MessageBox.Show("Недопустимый символ, индекс : " + i);
+                    MessageBox.Show("Недопустимый символ");
                     return false;
                 }  
-            }
+            }// Недопустимые символы
 
-            int right = 0;
-            int left = 0;
-
-            for (int i = 0; i < s.Length; i++)
+            try
             {
-                if(s[i]=='(')
+                Stack<char> st = new Stack<char>();
+                foreach(var ch in str)
                 {
-                    right++;
+                    if(ch == '(')
+                    {
+                        st.Push(ch);
+                    }
+                    if (ch == ')')
+                    {
+                        st.Pop();
+                    }
                 }
-
-                if(s[i]==')')
+                if (st.Count != 0)
                 {
-                    left++;
+                    throw new Exception();
                 }
             }
-
-            if(right!=left)
+            catch
             {
                 MessageBox.Show("Некорректная расстановка скобок");
                 return false;
-            }
+            }// Правильность расстановки скобок
 
             // проверка на структуру
-            string abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            string binary = "∧∨⊕⇒⇿";
-            char uno = '¬';
             void Show()
             {
                 MessageBox.Show("Неверная структура формулы");
             }
-
-            s = " " + s + " ";
-            for (int i = 1; i < s.Length-2; i++)
+            #region
+            str = " " + str + " ";
+            for (int i = 1; i < str.Length-2; i++)
             {
-                
-                if(abc.Contains(s[i]))
+                if(abc.Contains(str[i]))
                 {
-                    if(abc.Contains(s[i + 1]) | s[i+1] == uno)
+                    if(abc.Contains(str[i + 1]) | str[i+1] == uno)
                     {
                         Show();
                         return false;
@@ -391,9 +436,9 @@ namespace LogicForm
                     continue;
                 }
 
-                if(binary.Contains(s[i]))
+                if(binary.Contains(str[i]))
                 {
-                    if (binary.Contains(s[i+1]) | s[i + 1]==')')
+                    if (binary.Contains(str[i+1]) | str[i + 1]==')')
                     {
                         Show();
                         return false;
@@ -401,9 +446,9 @@ namespace LogicForm
                     continue;
                 }
 
-                if(s[i] == uno)
+                if(str[i] == uno)
                 {
-                    if (binary.Contains(s[i + 1]) | s[i + 1] == ')')
+                    if (binary.Contains(str[i + 1]) | str[i + 1] == ')')
                     {
                         Show();
                         return false;
@@ -411,9 +456,9 @@ namespace LogicForm
                     continue;
                 }
 
-                if(s[i]==')')
+                if(str[i]==')')
                 {
-                    if (abc.Contains(s[i + 1]) | s[i + 1] == '('| s[i + 1] == uno)
+                    if (abc.Contains(str[i + 1]) | str[i + 1] == '('| str[i + 1] == uno)
                     {
                         Show();
                         return false;
@@ -421,9 +466,9 @@ namespace LogicForm
                     continue;
                 }
 
-                if (s[i] == '(')
+                if (str[i] == '(')
                 {
-                    if (binary.Contains(s[i + 1]) | s[i + 1] == ')')
+                    if (binary.Contains(str[i + 1]) | str[i + 1] == ')')
                     {
                         Show();
                         return false;
@@ -431,11 +476,9 @@ namespace LogicForm
                     continue;
                 }
             }
-
+            #endregion
             return true;
         }
-
-
         string CheckForSwitch()
         {
             for (int i = 0; i < rowsCount / 2; i++)
@@ -486,24 +529,25 @@ namespace LogicForm
         }
         void FillTextBox()
         {
-            textBox2.Text = CheckForSwitch() + "\r\n" + Fictitious() + "\r\n" + ToPostfixForm(formula.Text);
+            textBox2.Text = CheckForSwitch() + "\r\n" + 
+                            Fictitious() + "\r\n" + 
+                            "Постфиксная форма: " + ToPostfixForm(formula.Text)+ "\r\n"+
+                            "Инфиксная форма: " + ToInfixForm();                       
             textBox2.ReadOnly = true;
             textBox2.Visible = true;
         }
-        
-        bool Equivalence(string s1, string s2)
-        {
-            return true;
-        }
+
+        #region
         private void button12_Click(object sender, EventArgs e)
         {
+            
             if (!Check(formula.Text))
             {
                 return;
             }
             string form = formula.Text;
 
-            Analyze(form);
+            Analyze();
             CreateTable();
             FillTextBox();
         }
@@ -593,9 +637,14 @@ namespace LogicForm
         }
         private void оПрограммеToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Программа умеет:\n1.Составлять таблицу истинности для логических формул\n2.Определять фиктивные переменные\n3.Определять, верно ли, что на наборах противоположных значений переменных формула принимает противоположное значение\n4.Проверять, являются ли формулы эквивалентными \n\nРазработчик : Дмитриев Александр");
+            MessageBox.Show("Программа умеет:\n" +
+                "1.Составлять таблицу истинности для логических формул\n" +
+                "2.Определять фиктивные переменные\n" +
+                "3.Определять, верно ли, что на наборах противоположных значений переменных формула принимает противоположное значение\n" +
+                "4.Преобразовывать формулы из инфиксной нотации в постфиксную \n\n" +
+                "Разработчик : Дмитриев Александр");
         }
-        private void button15_Click(object sender, EventArgs e)
+        /*private void button15_Click(object sender, EventArgs e)
         {
             string s = formula.Text;
             string s1;
@@ -624,13 +673,15 @@ namespace LogicForm
             {
                 MessageBox.Show("Для того, чтобы проверить эквивалентность формул, заполните строку в формате : формула1=формула2");
             }
-        }
+        }*/
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            button15.Enabled= !button15.Enabled;
+            //button15.Enabled= !button15.Enabled;
             left.Enabled = !left.Enabled;
             right.Enabled = !right.Enabled;
             equality.Enabled = !equality.Enabled;
         }
+
+        #endregion
     }
 }

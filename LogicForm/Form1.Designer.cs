@@ -49,7 +49,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.textBox2 = new System.Windows.Forms.TextBox();
-            this.button15 = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -191,7 +190,7 @@
             this.result.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.result.Location = new System.Drawing.Point(12, 105);
             this.result.Name = "result";
-            this.result.Size = new System.Drawing.Size(192, 36);
+            this.result.Size = new System.Drawing.Size(433, 36);
             this.result.TabIndex = 13;
             this.result.Text = "Сформировать отчет";
             this.result.UseVisualStyleBackColor = true;
@@ -265,23 +264,11 @@
             this.textBox2.TabIndex = 20;
             this.textBox2.Visible = false;
             // 
-            // button15
-            // 
-            this.button15.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.button15.Location = new System.Drawing.Point(210, 105);
-            this.button15.Name = "button15";
-            this.button15.Size = new System.Drawing.Size(226, 36);
-            this.button15.TabIndex = 21;
-            this.button15.Text = "Проверить на эквивалентность";
-            this.button15.UseVisualStyleBackColor = true;
-            this.button15.Click += new System.EventHandler(this.button15_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(457, 472);
-            this.Controls.Add(this.button15);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -336,8 +323,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.ToolTip toolTip1;
-        private System.Windows.Forms.Button button15;
+
     }
 }
 
