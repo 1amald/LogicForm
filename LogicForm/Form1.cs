@@ -27,23 +27,15 @@ namespace LogicForm
         }
 
         DataGridView dg = new DataGridView();
-        char[] actions = new char[]{ '¬', '∧', '∨', '⊕', '⇒', '⇿' };
-        int varCount;
-        char[,] numeric = new char[0,0];
-        char[] 
+        char[] actions = new char[]{ '¬', '∧', '∨', '⊕', '⇒', '⇿' }; // Операции
 
-        int rows;
-        char[,] MasTrue = new char[0, 0];
-        List<char> var = new List<char>();
+        int varCount;// Количество переменных
+        int rowsCount;
+        string[] numeric = new string[0]; // Массив наборов значений
+        char[] varArray = new char[0]; // Массив переменных
+        string postfix;// Постфиксная запись формулы
+        char[] solutions; // Решения
 
-        bool ITB(int a)
-        {
-            if(a==0)
-            {
-                return false;
-            }
-            return true;
-        }
         bool CTB(char a)
         {
             if(a == '0')
@@ -58,21 +50,269 @@ namespace LogicForm
             if (a) { return '1'; }
             else { return '0'; }
         }
-        bool[] Calculate(string postfix)
+
+        void Analyze(string s)// Заполняет поля
         {
-            bool[] result = new bool[varCount];
             List<char> varList = new List<char>();
 
-            for(int i=0;i<postfix.Length || varList.Count != varCount; i++)
+            for (int i = 0; i < s.Length; i++)
             {
-                if(postfix[i]>='A' && postfix[i]<='Z' && !varList.Contains(postfix[i]))
+                if (s[i] >= 'A' && s[i] <= 'Z' && !varList.Contains(s[i]))
                 {
-                    varList.Add(postfix[i]);
+                    varList.Add(s[i]);
+                }
+            }
+            varList.Sort();
+
+            postfix = ToPostfixForm(s);
+            varCount = varList.Count;
+            rowsCount = (int)Math.Pow(2, varCount);
+            varArray = varList.ToArray();
+            
+
+            numeric = new string[rowsCount];
+
+            for (int i = 0; i < rowsCount; i++)
+            {
+                numeric[i] = Convert.ToString(i, 2);
+                while (numeric[i].Length != varCount)
+                {
+                    numeric[i] = '0' + numeric[i];
+                }
+            }
+            solutions = Results();
+        }
+        char[] Results()
+        {
+            char[] res = new char[numeric.Length];
+
+            for(int i = 0; i < numeric.Length; i++)
+            {
+                string currentForm = postfix;
+                for(int j = 0; j < varCount; j++)
+                {
+                    currentForm = currentForm.Replace(varArray[j], numeric[i][j]);
+                }
+                res[i] = Calculate(currentForm);
+            }
+
+            return res;
+        }// Возвращает массив решений
+        char Calculate(string s)
+        {
+            char Operation(char op1, char op2, char action)
+            {
+
+                bool Not(bool b)
+                {
+                    b = !b;
+                    return b;
+                }
+                bool Or(bool a, bool b)
+                {
+                    if (a | b)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                bool And(bool a, bool b)
+                {
+                    if (a & b)
+                    {
+                        return true;
+
+                    }
+                    return false;
+                }
+                bool Xor(bool a, bool b)
+                {
+                    if (a == b)
+                    {
+                        return false;
+                    }
+                    return true;
+                }
+                bool Implc(bool a, bool b)
+                {
+                    if (a & !b)
+                    {
+                        return false;
+                    }
+                    return true;
+                }
+                bool Equally(bool a, bool b)
+                {
+                    if (a == b)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+
+                if (op2 == '$')
+                {
+                    return (BTC(Not(CTB(op1))));
+                }
+
+                switch (action)
+                {
+                    case '∧':
+                        return (BTC(And(CTB(op1), CTB(op2))));
+                    case '∨':
+                        return (BTC(Or(CTB(op1), CTB(op2))));
+                    case '⊕':
+                        return (BTC(Xor(CTB(op1), CTB(op2))));
+                    case '⇒':
+                        return (BTC(Implc(CTB(op1), CTB(op2))));
+                    case '⇿':
+                        return (BTC(Equally(CTB(op1), CTB(op2))));
+                    default:
+                        return '0';
+                }
+
+            } // операции
+
+            Stack<char> st = new Stack<char>();
+            for (int i = 0; i < s.Length; i++) // считает значение выражения
+            {
+                if(s[i] == '0' || s[i] == '1')
+                {
+                    st.Push(s[i]);
+                }
+                else if(s[i] == '¬')
+                {
+                    st.Push(Operation(st.Pop(), '$', '¬'));
+                }
+                else
+                {
+                    st.Push(Operation(st.Pop(), st.Pop(), s[i]));
+                }
+            }
+            return st.Pop();
+        } // Считает значение выражения
+        string ToPostfixForm(string formula)
+        {
+            int Priority(char oper)
+            {
+                switch (oper)
+                {
+                    case '¬':
+                        return 5;
+                    case '∧':
+                        return 4;
+                    case '∨':
+                        return 3;
+                    case '⊕':
+                        return 3;
+                    case '⇒':
+                        return 2;
+                    case '⇿':
+                        return 1;
+                    default:
+                        return 0;
                 }
             }
 
-            varList.Sort();
-        }
+            Stack<char> st = new Stack<char>();
+            Queue<char> qu = new Queue<char>();
+            string result = "";
+
+            for (int i = 0; i < formula.Length; i++)
+            {
+                if ('A' <= formula[i] && 'Z' >= formula[i])
+                {
+                    qu.Enqueue(formula[i]);
+                    continue;
+                }
+
+                if (actions.Contains(formula[i]))
+                {
+                    if (st.Count == 0 || st.Peek() == '(')
+                    {
+                        st.Push(formula[i]);
+                        continue;
+                    }
+
+                    if (Priority(formula[i]) > Priority(st.Peek()))
+                    {
+                        st.Push(formula[i]);
+                        continue;
+                    }
+                    else
+                    {
+                        while (st.Count != 0 && ((Priority(st.Peek()) >= Priority(formula[i])) || st.Peek() == '('))
+                        {
+                            qu.Enqueue(st.Pop());
+                        }
+                        st.Push(formula[i]);
+                        continue;
+                    }
+                }
+
+                if (formula[i] == '(')
+                {
+                    st.Push(formula[i]);
+                }
+
+                if (formula[i] == ')')
+                {
+                    while (st.Peek() != '(')
+                    {
+                        qu.Enqueue(st.Pop());
+                    }
+                    st.Pop();
+                }
+            }
+
+            foreach (var ch in qu)
+            {
+                result += ch;
+            }
+            foreach (var ch in st)
+            {
+                result += ch;
+            }
+
+            return result;
+        } // Из инфиксной в постфиксную
+        void CreateTable()
+        {
+            this.Controls.Remove(dg);
+            dg = new DataGridView();
+
+            dg.ColumnCount = varCount + 1;
+            dg.RowCount = rowsCount;
+
+            for (int i = 0; i < varCount; i++) // Для наборов переменных
+            {
+                dg.Columns[i].Width = 30;
+                dg.ColumnHeadersHeight = 30;
+                dg.RowHeadersVisible = false;
+                dg.Columns[i].Name = Convert.ToString(varArray[i]);
+            }
+
+            dg.Columns[varCount].Width = 30; // Для результатов
+            dg.ColumnHeadersHeight = 30;
+            dg.RowHeadersVisible = false;
+            dg.Columns[varCount].Name = "=";
+
+
+            for (int i = 0; i < dg.RowCount; i++) //
+            {
+                for (int j = 0; j < dg.ColumnCount - 1; j++)
+                {
+                    dg.Rows[i].Cells[j].Value = numeric[i][j];
+                }
+                dg.Rows[i].Cells[varCount].Value = solutions[i];
+            }
+
+            dg.Size = new Size(210, 300);
+            dg.Location = new Point(10, 160);
+            dg.BackgroundColor = Color.White;
+            this.Controls.Add(dg);
+            label2.Visible = true;
+        }// Создает таблицу
         bool Check(string s)
         {
             if(s.Length==0)
@@ -194,11 +434,13 @@ namespace LogicForm
 
             return true;
         }
+
+
         string CheckForSwitch()
         {
-            for (int i = 0; i < rows/2; i++)
+            for (int i = 0; i < rowsCount / 2; i++)
             {
-                if (Convert.ToString(dg[varCount, i].Value) == Convert.ToString(dg[varCount, rows - 1 - i].Value))
+                if (Convert.ToString(dg[varCount, i].Value) == Convert.ToString(dg[varCount, rowsCount - 1 - i].Value))
                 {
                     return "На наборах противоположных значений переменных формула не принимает противоположное значение.";
                 }
@@ -212,7 +454,7 @@ namespace LogicForm
             {
                 bool Fict = true;
                 int quantityblocks = Convert.ToInt32(Math.Pow(2, i + 1));
-                int lenghtblock = rows / quantityblocks;
+                int lenghtblock = rowsCount / quantityblocks;
 
                 for (int j = 0; j < quantityblocks / 2; j++)
                 {
@@ -248,320 +490,9 @@ namespace LogicForm
             textBox2.ReadOnly = true;
             textBox2.Visible = true;
         }
-        int Priority(char oper)
-        {
-            switch (oper)
-            {
-                case '¬':
-                    return 5;
-                case '∧':
-                    return 4;
-                case '∨':
-                    return 3;
-                case '⊕':
-                    return 3;
-                case '⇒':
-                    return 2;
-                case '⇿':
-                    return 1;
-                default:
-                    return 0;
-            }
-        }
-        string ToPostfixForm(string formula)
-        {
-            Stack<char> st = new Stack<char>();
-            Queue<char> qu = new Queue<char>();
-            string result = "";
-
-            for(int i = 0; i < formula.Length; i++)
-            {
-                if('A'<= formula[i] && 'Z' >= formula[i])
-                {
-                    qu.Enqueue(formula[i]);
-                    continue;
-                }
-
-                if (actions.Contains(formula[i]))
-                {
-                    if(st.Count == 0 || st.Peek() == '(')
-                    {
-                        st.Push(formula[i]);
-                        continue;
-                    }
-
-                    if (Priority(formula[i]) > Priority(st.Peek()))
-                    {
-                        st.Push(formula[i]);
-                        continue;
-                    }
-                    else
-                    {
-                        while (st.Count != 0 && ((Priority(st.Peek()) >= Priority(formula[i])) || st.Peek() == '('))
-                        {
-                            qu.Enqueue(st.Pop());
-                        }
-                        st.Push(formula[i]);
-                        continue;
-                    }
-                }
-
-                if(formula[i] == '(')
-                {
-                    st.Push(formula[i]);
-                }
-
-                if(formula[i] == ')')
-                {
-                    while(st.Peek() != '(')
-                    {
-                        qu.Enqueue(st.Pop());
-                    }
-                    st.Pop();
-                }
-            }
-
-            foreach(var ch in qu)
-            {
-                result += ch;
-            }
-            foreach(var ch in st)
-            {
-                result += ch;
-            }
-
-            return result;
-        }
-        void CreateTAB()
-        {
-            this.Controls.Remove(dg);
-            dg = new DataGridView();
-
-            dg.ColumnCount = varCount + 1;
-            dg.RowCount = rows;
-            var.Add('=');
-
-            for (int i = 0; i < varCount + 1; i++)
-            {
-                dg.Columns[i].Width = 30;
-                dg.ColumnHeadersHeight = 30;
-                dg.RowHeadersVisible = false;
-                dg.Columns[i].Name = Convert.ToString(var[i]);
-            }
-
-            for (int i = 0; i < dg.RowCount; i++)
-            {
-                for (int j = 0; j < dg.ColumnCount; j++)
-                {
-                    dg.Rows[i].Cells[j].Value = Convert.ToString(MasTrue[i, j]);
-                }
-            }
-
-            dg.Size = new Size(210, 300);
-            dg.Location = new Point(10 , 160);
-            dg.BackgroundColor = Color.White;
-            this.Controls.Add(dg);
-            label2.Visible = true;
-        }
-        void CreateMasTrue(string s)
-        {
-
-            string formula = s;
-            varCount = 0;
-            var = new List<char>();
-            // ищем переменные создаем, заполняем лист переменных
-            for (int i = 0; i < formula.Length; i++)
-            {
-                if (formula[i] >= 'A' & formula[i] <= 'Z')
-                {
-                    if (!var.Contains(formula[i]))
-                    {
-                        var.Add(formula[i]);
-                        varCount++;
-                    }
-                }
-            }
-            var.Sort();
-
-
-            rows = Convert.ToInt32(Math.Pow(2, Convert.ToDouble(varCount)));
-            MasTrue = new char[rows, varCount+1];
-            for (int i=0;i< rows; i++)
-            {
-                string s1 = Convert.ToString(i, 2);
-                string currentstring = formula;
-                while (s1.Length != varCount)
-                {
-                    s1 = '0' + s1;
-                }
-
-                for(int k = 0;k<var.Count;k++)
-                {
-                    currentstring = currentstring.Replace(var[k], s1[k]);
-                }
-
-                for (int j = 0;j<varCount;j++)
-                {
-                    MasTrue[i, j] = s1[j];
-                }
-                char res = Curr(currentstring);
-                MasTrue[i, varCount] = res;
-                
-            }
-        }    
-        char Curr(string currentstr)
-        {
-            string Sub(string s) // выполняем операции внутри скобок
-            {
-                char Operation(string ss)
-                {
-
-                    bool Not(bool b)
-                    {
-                        b = !b;
-                        return b;
-                    }
-
-                    bool Or(bool a, bool b)
-                    {
-                        if (a | b)
-                        {
-                            return true;
-                        }
-                        return false;
-                    }
-
-                    bool And(bool a, bool b)
-                    {
-                        if (a & b)
-                        {
-                            return true;
-
-                        }
-                        return false;
-                    }
-
-                    bool Xor(bool a, bool b)
-                    {
-                        if (a == b)
-                        {
-                            return false;
-                        }
-                        return true;
-                    }
-
-                    bool Implc(bool a, bool b)
-                    {
-                        if (a & !b)
-                        {
-                            return false;
-                        }
-                        return true;
-                    }
-
-                    bool Equally(bool a, bool b)
-                    {
-                        if (a == b)
-                        {
-                            return true;
-                        }
-                        return false;
-                    }
-
-                    if (ss.Length == 2)
-                    {
-                        return (BTC(Not(CTB(ss[1]))));
-                    }
-
-                    if (ss[1] == '∧') { return (BTC(And(CTB(ss[0]), CTB(ss[2])))); }
-
-                    if (ss[1] == '∨') { return (BTC(Or(CTB(ss[0]), CTB(ss[2])))); }
-
-                    if (ss[1] == '⊕') { return (BTC(Xor(CTB(ss[0]), CTB(ss[2])))); }
-
-                    if (ss[1] == '⇒') { return (BTC(Implc(CTB(ss[0]), CTB(ss[2])))); }
-
-                    return (BTC(Equally(CTB(ss[0]), CTB(ss[2]))));
-                    
-                } // операции
-
-                string subcurrentstr = s;
-                for (int i = 0; i < actions.Length; i++)
-                {
-                    for (int j = 0; j < subcurrentstr.Length; j++)
-                    {
-                        if (subcurrentstr[j] == actions[i]) // нашли операцию в строчке
-                        {
-                            if (i == 0) // если это унарная операция
-                            {
-                                subcurrentstr = subcurrentstr.Insert(j, Operation(subcurrentstr.Substring(j, 2)).ToString());
-                                subcurrentstr = subcurrentstr.Remove(j + 1, 2);
-                            }
-
-                            else // если бинарная
-                            {
-                                subcurrentstr = subcurrentstr.Insert(j - 1, Operation(subcurrentstr.Substring(j - 1, 3)).ToString());
-                                subcurrentstr = subcurrentstr.Remove(j, 3);
-                            }
-                        }
-                    }
-                }
-                return subcurrentstr; // возвращаем значение 
-            }
-
-            while (currentstr.Length > 1)
-            {
-                for (int i = 0; i < currentstr.Length; i++)
-                {
-                    if (currentstr.Contains('(')) // если находим не находим скобки,тогда выполняем sub
-                    {
-                        if (currentstr[i] == ')')
-                        {
-                            for (int j = i; j >= 0; j--)
-                            {
-                                if (currentstr[j] == '(')
-                                {
-                                    currentstr = currentstr.Insert(j, Sub(currentstr.Substring(j + 1, i - j - 1)));
-                                    currentstr = currentstr.Remove(j + 1, i - j + 1);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        currentstr = Sub(currentstr);
-                    }
-                }
-            }
-
-            return Convert.ToChar(currentstr);
-        }
+        
         bool Equivalence(string s1, string s2)
         {
-
-            char[,] arr1 = new char[0, 0];
-            CreateMasTrue(s1);
-            arr1 = MasTrue;
-
-            char[,] arr2 = new char[0, 0];
-            CreateMasTrue(s2);
-            arr2 = MasTrue;
-
-            if (arr1.GetLength(0) != arr2.GetLength(0))
-            {
-                return false;
-            }
-
-            for (int i = 0; i < varCount; i++)
-            {
-                if (arr1[i, varCount] != arr2[i, varCount])
-                {
-                    return false;
-                }
-            }
-
             return true;
         }
         private void button12_Click(object sender, EventArgs e)
@@ -572,8 +503,8 @@ namespace LogicForm
             }
             string form = formula.Text;
 
-            CreateMasTrue(form);
-            CreateTAB();
+            Analyze(form);
+            CreateTable();
             FillTextBox();
         }
         private void A_Click(object sender, EventArgs e)
