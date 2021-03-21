@@ -28,22 +28,22 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
+            this.formula = new System.Windows.Forms.TextBox();
+            this.and = new System.Windows.Forms.Button();
+            this.or = new System.Windows.Forms.Button();
+            this.xor = new System.Windows.Forms.Button();
+            this.not = new System.Windows.Forms.Button();
+            this.implication = new System.Windows.Forms.Button();
             this.button6 = new System.Windows.Forms.Button();
             this.A = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
             this.button9 = new System.Windows.Forms.Button();
             this.button10 = new System.Windows.Forms.Button();
-            this.button7 = new System.Windows.Forms.Button();
-            this.button11 = new System.Windows.Forms.Button();
-            this.button12 = new System.Windows.Forms.Button();
-            this.button13 = new System.Windows.Forms.Button();
-            this.button14 = new System.Windows.Forms.Button();
+            this.right = new System.Windows.Forms.Button();
+            this.left = new System.Windows.Forms.Button();
+            this.result = new System.Windows.Forms.Button();
+            this.equ = new System.Windows.Forms.Button();
+            this.equality = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.оПрограммеToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
@@ -53,68 +53,68 @@
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // textBox1
+            // formula
             // 
-            this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.textBox1.Location = new System.Drawing.Point(10, 46);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(435, 22);
-            this.textBox1.TabIndex = 0;
+            this.formula.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.formula.Location = new System.Drawing.Point(10, 46);
+            this.formula.Name = "formula";
+            this.formula.Size = new System.Drawing.Size(435, 22);
+            this.formula.TabIndex = 0;
             // 
-            // button1
+            // and
             // 
-            this.button1.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.button1.Location = new System.Drawing.Point(196, 74);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(25, 25);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "∧";
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.and.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.and.Location = new System.Drawing.Point(196, 74);
+            this.and.Name = "and";
+            this.and.Size = new System.Drawing.Size(25, 25);
+            this.and.TabIndex = 1;
+            this.and.Text = "∧";
+            this.and.UseVisualStyleBackColor = false;
+            this.and.Click += new System.EventHandler(this.button1_Click);
             // 
-            // button2
+            // or
             // 
-            this.button2.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.button2.Location = new System.Drawing.Point(226, 74);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(25, 25);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "∨";
-            this.button2.UseVisualStyleBackColor = false;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.or.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.or.Location = new System.Drawing.Point(226, 74);
+            this.or.Name = "or";
+            this.or.Size = new System.Drawing.Size(25, 25);
+            this.or.TabIndex = 2;
+            this.or.Text = "∨";
+            this.or.UseVisualStyleBackColor = false;
+            this.or.Click += new System.EventHandler(this.button2_Click);
             // 
-            // button3
+            // xor
             // 
-            this.button3.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.button3.Location = new System.Drawing.Point(257, 74);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(25, 25);
-            this.button3.TabIndex = 3;
-            this.button3.Text = "⊕";
-            this.button3.UseVisualStyleBackColor = false;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.xor.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.xor.Location = new System.Drawing.Point(257, 74);
+            this.xor.Name = "xor";
+            this.xor.Size = new System.Drawing.Size(25, 25);
+            this.xor.TabIndex = 3;
+            this.xor.Text = "⊕";
+            this.xor.UseVisualStyleBackColor = false;
+            this.xor.Click += new System.EventHandler(this.button3_Click);
             // 
-            // button4
+            // not
             // 
-            this.button4.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.button4.Location = new System.Drawing.Point(166, 74);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(25, 25);
-            this.button4.TabIndex = 4;
-            this.button4.Text = "¬";
-            this.button4.UseVisualStyleBackColor = false;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.not.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.not.Location = new System.Drawing.Point(166, 74);
+            this.not.Name = "not";
+            this.not.Size = new System.Drawing.Size(25, 25);
+            this.not.TabIndex = 4;
+            this.not.Text = "¬";
+            this.not.UseVisualStyleBackColor = false;
+            this.not.Click += new System.EventHandler(this.button4_Click);
             // 
-            // button5
+            // implication
             // 
-            this.button5.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.button5.Location = new System.Drawing.Point(288, 74);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(25, 25);
-            this.button5.TabIndex = 5;
-            this.button5.Text = "⇒";
-            this.button5.UseVisualStyleBackColor = false;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.implication.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.implication.Location = new System.Drawing.Point(288, 74);
+            this.implication.Name = "implication";
+            this.implication.Size = new System.Drawing.Size(25, 25);
+            this.implication.TabIndex = 5;
+            this.implication.Text = "⇒";
+            this.implication.UseVisualStyleBackColor = false;
+            this.implication.Click += new System.EventHandler(this.button5_Click);
             // 
             // button6
             // 
@@ -166,57 +166,57 @@
             this.button10.UseVisualStyleBackColor = true;
             this.button10.Click += new System.EventHandler(this.button10_Click);
             // 
-            // button7
+            // right
             // 
-            this.button7.Location = new System.Drawing.Point(382, 74);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(25, 25);
-            this.button7.TabIndex = 11;
-            this.button7.Text = "(";
-            this.button7.UseVisualStyleBackColor = true;
-            this.button7.Click += new System.EventHandler(this.button7_Click);
+            this.right.Location = new System.Drawing.Point(382, 74);
+            this.right.Name = "right";
+            this.right.Size = new System.Drawing.Size(25, 25);
+            this.right.TabIndex = 11;
+            this.right.Text = "(";
+            this.right.UseVisualStyleBackColor = true;
+            this.right.Click += new System.EventHandler(this.button7_Click);
             // 
-            // button11
+            // left
             // 
-            this.button11.Location = new System.Drawing.Point(411, 74);
-            this.button11.Name = "button11";
-            this.button11.Size = new System.Drawing.Size(25, 25);
-            this.button11.TabIndex = 12;
-            this.button11.Text = ")";
-            this.button11.UseVisualStyleBackColor = true;
-            this.button11.Click += new System.EventHandler(this.button11_Click);
+            this.left.Location = new System.Drawing.Point(411, 74);
+            this.left.Name = "left";
+            this.left.Size = new System.Drawing.Size(25, 25);
+            this.left.TabIndex = 12;
+            this.left.Text = ")";
+            this.left.UseVisualStyleBackColor = true;
+            this.left.Click += new System.EventHandler(this.button11_Click);
             // 
-            // button12
+            // result
             // 
-            this.button12.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.button12.Location = new System.Drawing.Point(12, 105);
-            this.button12.Name = "button12";
-            this.button12.Size = new System.Drawing.Size(192, 36);
-            this.button12.TabIndex = 13;
-            this.button12.Text = "Сформировать отчет";
-            this.button12.UseVisualStyleBackColor = true;
-            this.button12.Click += new System.EventHandler(this.button12_Click);
+            this.result.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.result.Location = new System.Drawing.Point(12, 105);
+            this.result.Name = "result";
+            this.result.Size = new System.Drawing.Size(192, 36);
+            this.result.TabIndex = 13;
+            this.result.Text = "Сформировать отчет";
+            this.result.UseVisualStyleBackColor = true;
+            this.result.Click += new System.EventHandler(this.button12_Click);
             // 
-            // button13
+            // equ
             // 
-            this.button13.BackColor = System.Drawing.SystemColors.ControlLightLight;
-            this.button13.Location = new System.Drawing.Point(322, 74);
-            this.button13.Name = "button13";
-            this.button13.Size = new System.Drawing.Size(25, 25);
-            this.button13.TabIndex = 14;
-            this.button13.Text = "⇿";
-            this.button13.UseVisualStyleBackColor = false;
-            this.button13.Click += new System.EventHandler(this.button13_Click);
+            this.equ.BackColor = System.Drawing.SystemColors.ControlLightLight;
+            this.equ.Location = new System.Drawing.Point(322, 74);
+            this.equ.Name = "equ";
+            this.equ.Size = new System.Drawing.Size(25, 25);
+            this.equ.TabIndex = 14;
+            this.equ.Text = "⇿";
+            this.equ.UseVisualStyleBackColor = false;
+            this.equ.Click += new System.EventHandler(this.button13_Click);
             // 
-            // button14
+            // equality
             // 
-            this.button14.Location = new System.Drawing.Point(352, 74);
-            this.button14.Name = "button14";
-            this.button14.Size = new System.Drawing.Size(25, 25);
-            this.button14.TabIndex = 16;
-            this.button14.Text = "=";
-            this.button14.UseVisualStyleBackColor = true;
-            this.button14.Click += new System.EventHandler(this.button14_Click);
+            this.equality.Location = new System.Drawing.Point(352, 74);
+            this.equality.Name = "equality";
+            this.equality.Size = new System.Drawing.Size(25, 25);
+            this.equality.TabIndex = 16;
+            this.equality.Text = "=";
+            this.equality.UseVisualStyleBackColor = true;
+            this.equality.Click += new System.EventHandler(this.button14_Click);
             // 
             // menuStrip1
             // 
@@ -285,22 +285,22 @@
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.button14);
-            this.Controls.Add(this.button13);
-            this.Controls.Add(this.button12);
-            this.Controls.Add(this.button11);
-            this.Controls.Add(this.button7);
+            this.Controls.Add(this.equality);
+            this.Controls.Add(this.equ);
+            this.Controls.Add(this.result);
+            this.Controls.Add(this.left);
+            this.Controls.Add(this.right);
             this.Controls.Add(this.button6);
             this.Controls.Add(this.A);
             this.Controls.Add(this.button8);
             this.Controls.Add(this.button9);
             this.Controls.Add(this.button10);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.implication);
+            this.Controls.Add(this.not);
+            this.Controls.Add(this.xor);
+            this.Controls.Add(this.or);
+            this.Controls.Add(this.and);
+            this.Controls.Add(this.formula);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
@@ -315,22 +315,22 @@
 
         #endregion
 
-        private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
+        private System.Windows.Forms.TextBox formula;
+        private System.Windows.Forms.Button and;
+        private System.Windows.Forms.Button or;
+        private System.Windows.Forms.Button xor;
+        private System.Windows.Forms.Button not;
+        private System.Windows.Forms.Button implication;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Button A;
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.Button button9;
         private System.Windows.Forms.Button button10;
-        private System.Windows.Forms.Button button7;
-        private System.Windows.Forms.Button button11;
-        private System.Windows.Forms.Button button12;
-        private System.Windows.Forms.Button button13;
-        private System.Windows.Forms.Button button14;
+        private System.Windows.Forms.Button right;
+        private System.Windows.Forms.Button left;
+        private System.Windows.Forms.Button result;
+        private System.Windows.Forms.Button equ;
+        private System.Windows.Forms.Button equality;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripMenuItem оПрограммеToolStripMenuItem;
         private System.Windows.Forms.Label label1;

@@ -18,7 +18,7 @@ namespace LogicForm
             InitializeComponent();
 
             ToolTip toolTip2 = new ToolTip();
-            toolTip2.SetToolTip(this.textBox1, "Для того, чтобы проверить эквивалентность формул, заполните строку в формате : формула1 = формула2");
+            toolTip2.SetToolTip(this.formula, "Для того, чтобы проверить эквивалентность формул, заполните строку в формате : формула1 = формула2");
             toolTip2.SetToolTip(this.button15, "Для того, чтобы проверить эквивалентность формул, заполните строку в формате : формула1 = формула2");
             toolTip2.ShowAlways = true;
             toolTip2.AutoPopDelay = 10000;
@@ -26,14 +26,14 @@ namespace LogicForm
             toolTip2.ReshowDelay = 50;
         }
 
-
         DataGridView dg = new DataGridView();
-        char[] Actions = new char[]{ '¬', '∧', '∨', '⊕', '⇒', '⇿' };
-        int variables;
-        int rows;
+        char[] actions = new char[]{ '¬', '∧', '∨', '⊕', '⇒', '⇿' };
+        int varCount;
+        char[,] numeric = new char[0,0];
+        char[] 
 
+        int rows;
         char[,] MasTrue = new char[0, 0];
-        char[,] MasTrue2 = new char[0, 0];
         List<char> var = new List<char>();
 
         bool ITB(int a)
@@ -58,7 +58,21 @@ namespace LogicForm
             if (a) { return '1'; }
             else { return '0'; }
         }
+        bool[] Calculate(string postfix)
+        {
+            bool[] result = new bool[varCount];
+            List<char> varList = new List<char>();
 
+            for(int i=0;i<postfix.Length || varList.Count != varCount; i++)
+            {
+                if(postfix[i]>='A' && postfix[i]<='Z' && !varList.Contains(postfix[i]))
+                {
+                    varList.Add(postfix[i]);
+                }
+            }
+
+            varList.Sort();
+        }
         bool Check(string s)
         {
             if(s.Length==0)
@@ -180,23 +194,21 @@ namespace LogicForm
 
             return true;
         }
-        
         string CheckForSwitch()
         {
             for (int i = 0; i < rows/2; i++)
             {
-                if (Convert.ToString(dg[variables, i].Value) == Convert.ToString(dg[variables, rows - 1 - i].Value))
+                if (Convert.ToString(dg[varCount, i].Value) == Convert.ToString(dg[varCount, rows - 1 - i].Value))
                 {
                     return "На наборах противоположных значений переменных формула не принимает противоположное значение.";
                 }
             }
             return "На наборах противоположных значений переменных формула принимает противоположное значение.";
         }
-
         string Fictitious()
         {
             string s = "";
-            for (int i = 0; i < variables; i++)
+            for (int i = 0; i < varCount; i++)
             {
                 bool Fict = true;
                 int quantityblocks = Convert.ToInt32(Math.Pow(2, i + 1));
@@ -206,7 +218,7 @@ namespace LogicForm
                 {
                     for (int k = 0; k < lenghtblock; k++)
                     {
-                        if (Convert.ToString(dg[variables, j * lenghtblock * 2 + k].Value) != Convert.ToString(dg[variables, j * lenghtblock * 2 + lenghtblock + k].Value))
+                        if (Convert.ToString(dg[varCount, j * lenghtblock * 2 + k].Value) != Convert.ToString(dg[varCount, j * lenghtblock * 2 + lenghtblock + k].Value))
                         {
                             Fict = false;
                             break;
@@ -230,30 +242,106 @@ namespace LogicForm
             }
             return "Фиктивные переменные: " + s;
         }
-
         void FillTextBox()
         {
-            textBox2.Text = CheckForSwitch() + "\r\n" + Fictitious();
+            textBox2.Text = CheckForSwitch() + "\r\n" + Fictitious() + "\r\n" + ToPostfixForm(formula.Text);
             textBox2.ReadOnly = true;
             textBox2.Visible = true;
         }
-
-        void PostFix()
+        int Priority(char oper)
         {
-            Stack<char> first = new Stack<char>();
-
+            switch (oper)
+            {
+                case '¬':
+                    return 5;
+                case '∧':
+                    return 4;
+                case '∨':
+                    return 3;
+                case '⊕':
+                    return 3;
+                case '⇒':
+                    return 2;
+                case '⇿':
+                    return 1;
+                default:
+                    return 0;
+            }
         }
+        string ToPostfixForm(string formula)
+        {
+            Stack<char> st = new Stack<char>();
+            Queue<char> qu = new Queue<char>();
+            string result = "";
 
+            for(int i = 0; i < formula.Length; i++)
+            {
+                if('A'<= formula[i] && 'Z' >= formula[i])
+                {
+                    qu.Enqueue(formula[i]);
+                    continue;
+                }
+
+                if (actions.Contains(formula[i]))
+                {
+                    if(st.Count == 0 || st.Peek() == '(')
+                    {
+                        st.Push(formula[i]);
+                        continue;
+                    }
+
+                    if (Priority(formula[i]) > Priority(st.Peek()))
+                    {
+                        st.Push(formula[i]);
+                        continue;
+                    }
+                    else
+                    {
+                        while (st.Count != 0 && ((Priority(st.Peek()) >= Priority(formula[i])) || st.Peek() == '('))
+                        {
+                            qu.Enqueue(st.Pop());
+                        }
+                        st.Push(formula[i]);
+                        continue;
+                    }
+                }
+
+                if(formula[i] == '(')
+                {
+                    st.Push(formula[i]);
+                }
+
+                if(formula[i] == ')')
+                {
+                    while(st.Peek() != '(')
+                    {
+                        qu.Enqueue(st.Pop());
+                    }
+                    st.Pop();
+                }
+            }
+
+            foreach(var ch in qu)
+            {
+                result += ch;
+            }
+            foreach(var ch in st)
+            {
+                result += ch;
+            }
+
+            return result;
+        }
         void CreateTAB()
         {
             this.Controls.Remove(dg);
             dg = new DataGridView();
 
-            dg.ColumnCount = variables + 1;
+            dg.ColumnCount = varCount + 1;
             dg.RowCount = rows;
             var.Add('=');
 
-            for (int i = 0; i < variables + 1; i++)
+            for (int i = 0; i < varCount + 1; i++)
             {
                 dg.Columns[i].Width = 30;
                 dg.ColumnHeadersHeight = 30;
@@ -275,13 +363,11 @@ namespace LogicForm
             this.Controls.Add(dg);
             label2.Visible = true;
         }
-
-        
         void CreateMasTrue(string s)
         {
 
             string formula = s;
-            variables = 0;
+            varCount = 0;
             var = new List<char>();
             // ищем переменные создаем, заполняем лист переменных
             for (int i = 0; i < formula.Length; i++)
@@ -291,20 +377,20 @@ namespace LogicForm
                     if (!var.Contains(formula[i]))
                     {
                         var.Add(formula[i]);
-                        variables++;
+                        varCount++;
                     }
                 }
             }
             var.Sort();
 
 
-            rows = Convert.ToInt32(Math.Pow(2, Convert.ToDouble(variables)));
-            MasTrue = new char[rows, variables+1];
+            rows = Convert.ToInt32(Math.Pow(2, Convert.ToDouble(varCount)));
+            MasTrue = new char[rows, varCount+1];
             for (int i=0;i< rows; i++)
             {
                 string s1 = Convert.ToString(i, 2);
                 string currentstring = formula;
-                while (s1.Length != variables)
+                while (s1.Length != varCount)
                 {
                     s1 = '0' + s1;
                 }
@@ -314,17 +400,15 @@ namespace LogicForm
                     currentstring = currentstring.Replace(var[k], s1[k]);
                 }
 
-                for (int j = 0;j<variables;j++)
+                for (int j = 0;j<varCount;j++)
                 {
                     MasTrue[i, j] = s1[j];
                 }
                 char res = Curr(currentstring);
-                MasTrue[i, variables] = res;
+                MasTrue[i, varCount] = res;
                 
             }
         }    
-
-        
         char Curr(string currentstr)
         {
             string Sub(string s) // выполняем операции внутри скобок
@@ -402,11 +486,11 @@ namespace LogicForm
                 } // операции
 
                 string subcurrentstr = s;
-                for (int i = 0; i < Actions.Length; i++)
+                for (int i = 0; i < actions.Length; i++)
                 {
                     for (int j = 0; j < subcurrentstr.Length; j++)
                     {
-                        if (subcurrentstr[j] == Actions[i]) // нашли операцию в строчке
+                        if (subcurrentstr[j] == actions[i]) // нашли операцию в строчке
                         {
                             if (i == 0) // если это унарная операция
                             {
@@ -454,7 +538,6 @@ namespace LogicForm
 
             return Convert.ToChar(currentstr);
         }
-
         bool Equivalence(string s1, string s2)
         {
 
@@ -471,9 +554,9 @@ namespace LogicForm
                 return false;
             }
 
-            for (int i = 0; i < variables; i++)
+            for (int i = 0; i < varCount; i++)
             {
-                if (arr1[i, variables] != arr2[i, variables])
+                if (arr1[i, varCount] != arr2[i, varCount])
                 {
                     return false;
                 }
@@ -481,124 +564,109 @@ namespace LogicForm
 
             return true;
         }
-
         private void button12_Click(object sender, EventArgs e)
         {
-            if(Check(textBox1.Text))
+            if (!Check(formula.Text))
             {
-                CreateMasTrue(textBox1.Text);
-                CreateTAB();
-                FillTextBox();
+                return;
             }
-        }
+            string form = formula.Text;
 
+            CreateMasTrue(form);
+            CreateTAB();
+            FillTextBox();
+        }
         private void A_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, "A");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, "A");
+            formula.SelectionStart = a + 1;
         }
-
         private void button10_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, "B");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, "B");
+            formula.SelectionStart = a + 1;
         }
-
         private void button9_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, "C");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, "C");
+            formula.SelectionStart = a + 1;
         }
-
         private void button8_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, "D");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, "D");
+            formula.SelectionStart = a + 1;
         }
-
         private void button6_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, "E");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, "E");
+            formula.SelectionStart = a + 1;
         }
-
         private void button4_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, "¬");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, "¬");
+            formula.SelectionStart = a + 1;
         }
-
         private void button1_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, "∧");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, "∧");
+            formula.SelectionStart = a + 1;
         }
-
         private void button2_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, "∨");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, "∨");
+            formula.SelectionStart = a + 1;
         }
-
         private void button3_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, "⊕");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, "⊕");
+            formula.SelectionStart = a + 1;
         }
-
         private void button5_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, "⇒");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, "⇒");
+            formula.SelectionStart = a + 1;
         }
-
         private void button7_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, "(");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, "(");
+            formula.SelectionStart = a + 1;
         }
-
         private void button11_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, ")");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, ")");
+            formula.SelectionStart = a + 1;
         }
-
-
         private void button13_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, "⇿");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, "⇿");
+            formula.SelectionStart = a + 1;
         }
-
         private void button14_Click(object sender, EventArgs e)
         {
-            int a = textBox1.SelectionStart;
-            textBox1.Text = textBox1.Text.Insert(a, "=");
-            textBox1.SelectionStart = a + 1;
+            int a = formula.SelectionStart;
+            formula.Text = formula.Text.Insert(a, "=");
+            formula.SelectionStart = a + 1;
         }
-
         private void оПрограммеToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Программа умеет:\n1.Составлять таблицу истинности для логических формул\n2.Определять фиктивные переменные\n3.Определять, верно ли, что на наборах противоположных значений переменных формула принимает противоположное значение\n4.Проверять, являются ли формулы эквивалентными \n\nРазработчик : Дмитриев Александр");
         }
-
         private void button15_Click(object sender, EventArgs e)
         {
-            string s = textBox1.Text;
+            string s = formula.Text;
             string s1;
             string s2;
             string msg;
@@ -626,13 +694,12 @@ namespace LogicForm
                 MessageBox.Show("Для того, чтобы проверить эквивалентность формул, заполните строку в формате : формула1=формула2");
             }
         }
-
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             button15.Enabled= !button15.Enabled;
-            button11.Enabled = !button11.Enabled;
-            button7.Enabled = !button7.Enabled;
-            button14.Enabled = !button14.Enabled;
+            left.Enabled = !left.Enabled;
+            right.Enabled = !right.Enabled;
+            equality.Enabled = !equality.Enabled;
         }
     }
 }
