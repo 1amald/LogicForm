@@ -10,13 +10,14 @@ namespace LogicForm
         string postfix;
         string dirtyInfix;
         string clearInfix;
+        string sknf = "";
+        string sdnf = "";
 
         List<char> varArray = new List<char>(); 
         char[] solutions;
 
         List<char> fictionsArray = new List<char>();
         bool switchForm;
-
 
         public Formula(string dirtyInfix)
         {
@@ -27,6 +28,7 @@ namespace LogicForm
             SetSolutions();
             SetFictitious();
             SetSwitch();
+            SetSknfAndSdnf();
         }
 
         public int VarCount => varArray.Count;
@@ -47,7 +49,20 @@ namespace LogicForm
         }
         public bool SwitchForm => switchForm;
         public char[] Fictions => fictionsArray.ToArray();
-        
+        public bool General
+        {
+            get
+            {
+                if (solutions.Contains('0'))
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+        public string Sknf => sknf;
+        public string Sdnf => sdnf;
+
 
         void SetPostfixForm()
         {
@@ -161,10 +176,11 @@ namespace LogicForm
             }
             varList.Sort();
             varArray =  varList;
+            InicilizeNumeric(varList.Count);
         }
         void SetSolutions()
         {
-            string[] numeric = Numeric(varArray.Count);
+            string[] numeric = Numeric;
             char[] res = new char[numeric.Length];
 
             for (int i = 0; i < numeric.Length; i++)
@@ -315,6 +331,74 @@ namespace LogicForm
                 }
             }
             switchForm =  true;
+        }
+        void SetSknfAndSdnf()
+        {
+            List<string> zero = new List<string>();
+            List<string> one = new List<string>();
+            for(int i = 0;i<solutions.Length;i++)
+            {
+                if(solutions[i] == '0')
+                {
+                    zero.Add(Numeric[i]);
+                    continue;
+                }
+                one.Add(Numeric[i]);
+            }
+
+            if (zero.Count != 0)
+            {
+                for (int i = 0; i < zero.Count; i++)
+                {
+                    string part = "";
+                    for (int j = 0; j < zero[i].Length; j++)
+                    {
+                        if (zero[i][j] == '0')
+                        {
+                            part += varArray[j];
+                        }
+                        else
+                        {
+                            part += "¬" + varArray[j];
+                        }
+                        part += '∨';
+                    }
+                    part = part.Substring(0, part.Length - 1);
+                    if (zero.Count != 1)
+                    {
+                        part = '(' + part + ')';
+                    }
+                    sknf += part + '∧';
+                }
+                sknf = sknf.Substring(0, sknf.Length - 1);
+            }
+
+            if (one.Count != 0)
+            {
+                for (int i = 0; i < one.Count; i++)
+                {
+                    string part = "";
+                    for (int j = 0; j < one[i].Length; j++)
+                    {
+                        if (one[i][j] == '1')
+                        {
+                            part += varArray[j];
+                        }
+                        else
+                        {
+                            part += "¬" + varArray[j];
+                        }
+                        part += '∧';
+                    }
+                    part = part.Substring(0, part.Length - 1);
+                    if (one.Count != 1)
+                    {
+                        part = '(' + part + ')';
+                    }
+                    sdnf += part + '∨';
+                }
+                sdnf = sdnf.Substring(0, sdnf.Length - 1);
+            }
         }
     }  
 

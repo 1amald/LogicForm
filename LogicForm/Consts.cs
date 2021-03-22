@@ -3,15 +3,15 @@
 
 namespace LogicForm
 {
-    public class Consts
+    public static class Consts
     {
-        public static string actions = "¬∧∨⊕⇒⇿";
-        public static char uno = '¬';
-        public static string binary = "∧∨⊕⇒⇿";
-        public static string abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        public static string allSimbols = "ABC¬∧∨()⊕⇒⇿DEFGHIJKLMNOPQRSTUVWXYZ";
-
-        public static string[] Numeric(int variables)
+        public static readonly string actions = "¬∧∨⊕⇒⇿";
+        public static readonly char uno = '¬';
+        public static readonly string binary = "∧∨⊕⇒⇿";
+        public static readonly string abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        public static readonly string allSimbols = "ABC¬∧∨()⊕⇒⇿DEFGHIJKLMNOPQRSTUVWXYZ";
+        public static string[] Numeric { get; private set; }
+        public static void InicilizeNumeric(int variables)
         {
             string[] numeric = new string[(int)Math.Pow(2,variables)];
             for (int i = 0; i < numeric.Length; i++)
@@ -22,7 +22,7 @@ namespace LogicForm
                     numeric[i] = '0' + numeric[i];
                 }
             }
-            return numeric;
+            Numeric = numeric;
         }
         public static bool CTB(char a)
         {

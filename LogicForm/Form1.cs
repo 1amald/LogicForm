@@ -50,7 +50,7 @@ namespace LogicForm
             dg.RowHeadersVisible = false;
             dg.Columns[varCount].Name = "=";
 
-            string[] numeric = Numeric(varCount);
+            string[] numeric = Numeric;
             for (int i = 0; i < dg.RowCount; i++) //
             {
                 for (int j = 0; j < dg.ColumnCount - 1; j++)
@@ -70,39 +70,84 @@ namespace LogicForm
         {
             char[] fict = f.Fictions;
             bool sw = f.SwitchForm;
+            bool get = f.General;
             string inf = f.ClearInfix;
+            string sknf = f.Sknf;
+            string sdnf = f.Sdnf;
+            string post = f.Postfix;
 
+            string postStr = "Постфиксная форма: " + post + "\r\n\r\n";
             string fictStr;
             string swStr;
+            string infStr;
+            string genStr;
+            string sknfStr;
+            string sdnfStr;
+
+            #region
             if (fict.Length == 0)
             {
-                fictStr = "Фиктивные переменные не найдены.";
+                fictStr = "Фиктивные переменные не найдены.\r\n\r\n";
             }
             else
             {
                 fictStr = "Фиктивные переменные: ";
                 foreach (var ch in fict)
                 {
-                    fictStr += ch + ' ';
+                    fictStr += ch + " ";
                 }
+                fictStr += "\r\n\r\n";
             }
             if (sw)
             {
-                swStr = "На противоположных наборах значений переменных формула принимает противоположные значения";
+                swStr = "На противоположных наборах значений переменных формула принимает противоположные значения\r\n\r\n";
             }
             else
             {
-                swStr = "На противоположных наборах значений переменных формула НЕ принимает противоположные значения";
+                swStr = "На противоположных наборах значений переменных формула НЕ принимает противоположные значения\r\n\r\n";
             }
             if (inf != "")
             {
-                inf = "Формула без лишних скобок и повторяющихся отрицаний: " + "\r\n" + inf;
+                infStr = "Формула без лишних скобок и повторяющихся отрицаний: " + "\r\n" + inf+"\r\n\r\n";
             }
+            else
+            {
+                infStr = "Лишние скобки не найдены\r\n\r\n";
+            }
+            if (f.General)
+            {
+                genStr = "Формула является общезначимой\r\n\r\n";
+            }
+            else
+            {
+                genStr = "Формула не является общезначимой\r\n\r\n";
+            }
+            if (sknf.Length != 0)
+            {
+                sknfStr = "Скнф: " + sknf + "\r\n\r\n";
+            }
+            else
+            {
+                sknfStr = "Скнф не существует\r\n\r\n";
+            }
+            if (sdnf.Length != 0)
+            {
+                sdnfStr = "Сднф: " + sdnf + "\r\n\r\n";
+            }
+            else
+            {
+                sdnfStr = "Сднф не существует\r\n\r\n";
+            }
+            #endregion
 
-            textBox2.Text = "Постфиксная форма: " + f.Postfix + "\r\n\r\n" +
-                            fictStr + "\r\n\r\n" +
-                            swStr + "\r\n\r\n" +
-                            inf + "\r\n\r\n";
+            textBox2.Text = postStr +
+                            fictStr +
+                            swStr +
+                            infStr +
+                            genStr +
+                            sknfStr +
+                            sdnfStr;
+                            
             textBox2.ReadOnly = true;
             textBox2.Visible = true;
         }
@@ -234,7 +279,7 @@ namespace LogicForm
             if (!Check(ref str))
             {
                 return;
-            }
+            } 
             Formula f = new Formula(str);
             FillTextBox(f);
             CreateTable(f);
