@@ -24,7 +24,6 @@ namespace LogicForm
         }
 
         DataGridView dg = new DataGridView();
-
         void CreateTable(Formula f)
         {
             this.Controls.Remove(dg);
@@ -67,12 +66,51 @@ namespace LogicForm
             this.Controls.Add(dg);
             label2.Visible = true;
         }
-        bool Check(string str)
+        void FillTextBox(Formula f)
+        {
+            char[] fict = f.Fictions;
+            bool sw = f.SwitchForm;
+            string inf = f.ClearInfix;
+
+            string fictStr;
+            string swStr;
+            if (fict.Length == 0)
+            {
+                fictStr = "Фиктивные переменные не найдены.";
+            }
+            else
+            {
+                fictStr = "Фиктивные переменные: ";
+                foreach (var ch in fict)
+                {
+                    fictStr += ch + ' ';
+                }
+            }
+            if (sw)
+            {
+                swStr = "На противоположных наборах значений переменных формула принимает противоположные значения";
+            }
+            else
+            {
+                swStr = "На противоположных наборах значений переменных формула НЕ принимает противоположные значения";
+            }
+            if (inf != "")
+            {
+                inf = "Формула без лишних скобок и повторяющихся отрицаний: " + "\r\n" + inf;
+            }
+
+            textBox2.Text = "Постфиксная форма: " + f.Postfix + "\r\n\r\n" +
+                            fictStr + "\r\n\r\n" +
+                            swStr + "\r\n\r\n" +
+                            inf + "\r\n\r\n";
+            textBox2.ReadOnly = true;
+            textBox2.Visible = true;
+        }
+        bool Check(ref string str)
         {
             bool res = false;
 
             str = str.ToUpper();
-            str = str.Trim();
             str = str.Replace("¬¬", "");
            
             foreach (var ch in str)
@@ -183,54 +221,21 @@ namespace LogicForm
                 }
             }
             #endregion
+            str = str.Trim();
             return true;
         }
-        void FillTextBox(Formula f)
-        {
-            char[] fict = f.Fictions;
-            bool sw = f.SwitchForm;
-            string inf = f.ClearInfix;
-
-            string fictStr;
-            string swStr;
-            if (fict.Length == 0)
-            {
-                fictStr = "Фиктивные переменные не найдены.";
-            }
-            else
-            {
-                fictStr = "Фиктивные переменные: ";
-                foreach(var ch in fict)
-                {
-                    fictStr += ch + ' ';
-                }
-            }
-            if (sw)
-            {
-                swStr= "На противоположных наборах значений переменных формула принимает противоположные значения";
-            }
-            else
-            {
-                swStr = "На противоположных наборах значений переменных формула НЕ принимает противоположные значения";
-            }
-
-            textBox2.Text = "Постфиксная форма: " + f.Postfix + "\r\n" +
-                            fictStr + "\r\n" +
-                            swStr + "\r\n"+
-                            inf +"\r\n";
-            textBox2.ReadOnly = true;
-            textBox2.Visible = true;
-        }
+        
 
         #region
         private void button12_Click(object sender, EventArgs e)
         {
-            
-            if (!Check(formula.Text))
+            string str = formula.Text;
+
+            if (!Check(ref str))
             {
                 return;
             }
-            Formula f = new Formula(formula.Text);
+            Formula f = new Formula(str);
             FillTextBox(f);
             CreateTable(f);
         }
@@ -324,39 +329,11 @@ namespace LogicForm
                 "1.Составлять таблицу истинности для логических формул\n" +
                 "2.Определять фиктивные переменные\n" +
                 "3.Определять, верно ли, что на наборах противоположных значений переменных формула принимает противоположное значение\n" +
-                "4.Преобразовывать формулы из инфиксной нотации в постфиксную \n\n" +
-                "Разработчик : Дмитриев Александр");
+                "4.Преобразовывать формулы из инфиксной нотации в постфиксную \n" +
+                "5.Находить незначимые скобки \n\n" +
+                "Разработчик : студент группы 2012 Дмитриев Александр");
         }
-        /*private void button15_Click(object sender, EventArgs e)
-        {
-            string s = formula.Text;
-            string s1;
-            string s2;
-            string msg;
-
-            if (s.Contains('='))
-            {
-                s1 = s.Substring(0, s.IndexOf('='));
-                s2 = s.Substring(s.IndexOf('=')+1, s.Length - s.IndexOf('=')-1);
-                if (Check(s1) & Check(s2))
-                {
-                    if (Equivalence(s1, s2))
-                    {
-                        msg = "Формулы эквивалентны";
-                    }
-                    else
-                    {
-                        msg = "Формулы не эквивалентны";
-                    }
-
-                    MessageBox.Show(msg);
-                }
-            }
-            else
-            {
-                MessageBox.Show("Для того, чтобы проверить эквивалентность формул, заполните строку в формате : формула1=формула2");
-            }
-        }*/
+        
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             //button15.Enabled= !button15.Enabled;
