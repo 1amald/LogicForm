@@ -25,10 +25,15 @@ namespace LogicForm
 
         DataGridView dg = new DataGridView();
 
-        /*void CreateTable()
+        void CreateTable(Formula f)
         {
             this.Controls.Remove(dg);
             dg = new DataGridView();
+
+            int varCount = f.VarCount;
+            int rowsCount = f.RowsCount;
+            char[] varArray = f.VarArray;
+            char[] solutions = f.Solutions;
 
             dg.ColumnCount = varCount + 1;
             dg.RowCount = rowsCount;
@@ -46,7 +51,7 @@ namespace LogicForm
             dg.RowHeadersVisible = false;
             dg.Columns[varCount].Name = "=";
 
-
+            string[] numeric = Numeric(varCount);
             for (int i = 0; i < dg.RowCount; i++) //
             {
                 for (int j = 0; j < dg.ColumnCount - 1; j++)
@@ -61,7 +66,7 @@ namespace LogicForm
             dg.BackgroundColor = Color.White;
             this.Controls.Add(dg);
             label2.Visible = true;
-        }// Создает таблицу*/
+        }
         bool Check(string str)
         {
             bool res = false;
@@ -182,11 +187,37 @@ namespace LogicForm
         }
         void FillTextBox(Formula f)
         {
-            textBox2.Text = f.postfix;
-            /*textBox2.Text = CheckForSwitch() + "\r\n" + 
-                            Fictitious() + "\r\n" + 
-                            "Постфиксная форма: " + ToPostfixForm(formula.Text)+ "\r\n"+
-                            "Инфиксная форма: " + ToInfixForm(); */                      
+            char[] fict = f.Fictions;
+            bool sw = f.SwitchForm;
+            string inf = f.ClearInfix;
+
+            string fictStr;
+            string swStr;
+            if (fict.Length == 0)
+            {
+                fictStr = "Фиктивные переменные не найдены.";
+            }
+            else
+            {
+                fictStr = "Фиктивные переменные: ";
+                foreach(var ch in fict)
+                {
+                    fictStr += ch + ' ';
+                }
+            }
+            if (sw)
+            {
+                swStr= "На противоположных наборах значений переменных формула принимает противоположные значения";
+            }
+            else
+            {
+                swStr = "На противоположных наборах значений переменных формула НЕ принимает противоположные значения";
+            }
+
+            textBox2.Text = "Постфиксная форма: " + f.Postfix + "\r\n" +
+                            fictStr + "\r\n" +
+                            swStr + "\r\n"+
+                            inf +"\r\n";
             textBox2.ReadOnly = true;
             textBox2.Visible = true;
         }
@@ -201,6 +232,7 @@ namespace LogicForm
             }
             Formula f = new Formula(formula.Text);
             FillTextBox(f);
+            CreateTable(f);
         }
         private void A_Click(object sender, EventArgs e)
         {

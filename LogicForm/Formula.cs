@@ -7,7 +7,7 @@ namespace LogicForm
 {
     public class Formula
     {
-        public string postfix;
+        string postfix;
         string dirtyInfix;
         string clearInfix;
 
@@ -15,62 +15,84 @@ namespace LogicForm
         char[] solutions;
 
         List<char> fictionsArray = new List<char>();
+        bool switchForm;
 
 
         public Formula(string dirtyInfix)
         {
-            varArray = GetVariables(dirtyInfix);
             this.dirtyInfix = dirtyInfix;
-            postfix = ToPostfixForm(dirtyInfix);
-            clearInfix = ToInfixForm(postfix);
-            solutions = Solutions(postfix);
-            fictionsArray = Fictitious(solutions);
+            SetVariables();
+            SetPostfixForm();
+            SetInfixForm();
+            SetSolutions();
+            SetFictitious();
+            SetSwitch();
         }
 
-        string ToPostfixForm(string infix)
+        public int VarCount => varArray.Count;
+        public int RowsCount => (int)Math.Pow(2, VarCount);
+        public char[] Solutions => solutions;
+        public char[] VarArray => varArray.ToArray();
+        public string Postfix => postfix;
+        public string ClearInfix
+        {
+            get
+            {
+                if(dirtyInfix.Length!= clearInfix.Length)
+                {
+                    return clearInfix;
+                }
+                return "";
+            }
+        }
+        public bool SwitchForm => switchForm;
+        public char[] Fictions => fictionsArray.ToArray();
+        
+
+        void SetPostfixForm()
         {
             Stack<char> st = new Stack<char>();
             Queue<char> qu = new Queue<char>();
             string result = "";
 
-            for (int i = 0; i < infix.Length; i++)
+            for (int i = 0; i < dirtyInfix.Length; i++)
             {
-                if ('A' <= infix[i] && 'Z' >= infix[i])
+                if ('A' <= dirtyInfix[i] && 'Z' >= dirtyInfix[i])
                 {
-                    qu.Enqueue(infix[i]);
+                    qu.Enqueue(dirtyInfix[i]);
                     continue;
                 }
 
-                if (Consts.actions.Contains(infix[i]))
+                if (Consts.actions.Contains(dirtyInfix[i]))
                 {
                     if (st.Count == 0 || st.Peek() == '(')
                     {
-                        st.Push(infix[i]);
+                        st.Push(dirtyInfix[i]);
                         continue;
                     }
 
-                    if (Priority(infix[i]) > Priority(st.Peek()))
+                    if (Priority(dirtyInfix[i]) > Priority(st.Peek()))
                     {
-                        st.Push(infix[i]);
+                        st.Push(dirtyInfix[i]);
                         continue;
                     }
                     else
                     {
-                        while (st.Count != 0 && ((Priority(st.Peek()) >= Priority(infix[i])) || st.Peek() == '('))
+                        while (st.Count != 0 && ((Priority(st.Peek()) >= Priority(dirtyInfix[i])) || st.Peek() == '('))
                         {
                             qu.Enqueue(st.Pop());
                         }
-                        st.Push(infix[i]);
+                        st.Push(dirtyInfix[i]);
                         continue;
                     }
                 }
 
-                if (infix[i] == '(')
+                if (dirtyInfix[i] == '(')
                 {
-                    st.Push(infix[i]);
+                    st.Push(dirtyInfix[i]);
                 }
 
-                if (infix[i] == ')')
+                if (dirtyInfix[i] == ')')
                 {
                     while (st.Peek() != '(')
                     {
@@ -89,12 +111,12 @@ namespace LogicForm
                 result += ch;
             }
 
-            return result;
-        } // Из инфиксной в постфиксную
-        string ToInfixForm(string postfixFormula)
+            postfix =  result;
+        } 
+        void SetInfixForm()
         {
             Stack<mystr> st = new Stack<mystr>();
-            foreach (var ch in postfixFormula)
+            foreach (var ch in postfix)
             {
                 if (ch >= 'A' && ch <= 'Z')
                 {
@@ -125,29 +147,29 @@ namespace LogicForm
                     st.Push(newStr);
                 }
             }
-            return st.Pop().Value;
+            clearInfix =  st.Pop().Value;
         }
-        List<char> GetVariables(string formula)
+        void SetVariables()
         {
             List<char> varList = new List<char>();
-            for (int i = 0; i < formula.Length; i++)
+            for (int i = 0; i < dirtyInfix.Length; i++)
             {
-                if (formula[i] >= 'A' && formula[i] <= 'Z' && !varList.Contains(formula[i]))
+                if (dirtyInfix[i] >= 'A' && dirtyInfix[i] <= 'Z' && !varList.Contains(dirtyInfix[i]))
                 {
-                    varList.Add(formula[i]);
+                    varList.Add(dirtyInfix[i]);
                 }
             }
             varList.Sort();
-            return varList;
+            varArray =  varList;
         }
-        char[] Solutions(string post)
+        void SetSolutions()
         {
             string[] numeric = Numeric(varArray.Count);
             char[] res = new char[numeric.Length];
 
             for (int i = 0; i < numeric.Length; i++)
             {
-                string currentForm = post;
+                string currentForm = postfix;
                 for (int j = 0; j < varArray.Count; j++)
                 {
                     currentForm = currentForm.Replace(varArray[j], numeric[i][j]);
@@ -155,7 +177,7 @@ namespace LogicForm
                 res[i] = Calculate(currentForm);
             }
 
-            return res;
+            solutions =  res;
 
             char Calculate(string s)
             {
@@ -250,8 +272,8 @@ namespace LogicForm
                 }
                 return st.Pop();
             } // Считает значение выражения
-        }// Возвращает массив решений
-        List<char> Fictitious(char[] sol)
+        }
+        void SetFictitious()
         {
             List<char> res = new List<char>();
             for (int i = 0; i < varArray.Count; i++)
@@ -264,7 +286,7 @@ namespace LogicForm
                 {
                     for (int k = 0; k < lenghtblock; k++)
                     {
-                        if (sol[j * lenghtblock * 2 + k] != sol[j * lenghtblock * 2 + lenghtblock + k])
+                        if (solutions[j * lenghtblock * 2 + k] != solutions[j * lenghtblock * 2 + lenghtblock + k])
                         {
                             Fict = false;
                             break;
@@ -281,20 +303,19 @@ namespace LogicForm
                     res.Add(varArray[i]);
                 }
             }
-            return res;
+            fictionsArray =  res;
         }
-
-        /*string CheckForSwitch()
+        void SetSwitch()
         {
-            for (int i = 0; i < rowsCount / 2; i++)
+            for (int i = 0; i < solutions.Length / 2; i++)
             {
-                if (Convert.ToString(dg[varCount, i].Value) == Convert.ToString(dg[varCount, rowsCount - 1 - i].Value))
+                if (solutions[i] == solutions[solutions.Length - 1 - i])
                 {
-                    return "На наборах противоположных значений переменных формула не принимает противоположное значение.";
+                    switchForm = false;
                 }
             }
-            return "На наборах противоположных значений переменных формула принимает противоположное значение.";
-        }*/
+            switchForm =  true;
+        }
     }  
 
     class mystr

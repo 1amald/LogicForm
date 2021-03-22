@@ -13,8 +13,8 @@ namespace LogicForm
 
         public static string[] Numeric(int variables)
         {
-            string[] numeric = new string[variables];
-            for (int i = 0; i < variables; i++)
+            string[] numeric = new string[(int)Math.Pow(2,variables)];
+            for (int i = 0; i < numeric.Length; i++)
             {
                 numeric[i] = Convert.ToString(i, 2);
                 while (numeric[i].Length != variables)
