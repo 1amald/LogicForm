@@ -63,8 +63,10 @@ namespace LogicForm
             dg.Size = new Size(210, 300);
             dg.Location = new Point(10, 160);
             dg.BackgroundColor = Color.White;
+            dg.ReadOnly = true;
             this.Controls.Add(dg);
             label2.Visible = true;
+            dg.ClearSelection();
         }
         void FillTextBox(Formula f)
         {
@@ -375,7 +377,8 @@ namespace LogicForm
                 "2.Определять фиктивные переменные\n" +
                 "3.Определять, верно ли, что на наборах противоположных значений переменных формула принимает противоположное значение\n" +
                 "4.Преобразовывать формулы из инфиксной нотации в постфиксную \n" +
-                "5.Находить незначимые скобки \n\n" +
+                "5.Находить незначимые скобки \n" +
+                "6.Составлять СКНФ и СДНФ \n\n" +
                 "Разработчик : студент группы 2012 Дмитриев Александр");
         }
         

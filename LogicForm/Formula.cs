@@ -142,6 +142,10 @@ namespace LogicForm
                     if (ch == '¬')
                     {
                         var el = st.Pop();
+                        if (el.Priority != 0)
+                        {
+                            el.Value = '(' + el.Value + ')';
+                        }
                         el.Value = ch + el.Value;
                         el.Priority = Priority(ch);
                         st.Push(el);
@@ -328,6 +332,7 @@ namespace LogicForm
                 if (solutions[i] == solutions[solutions.Length - 1 - i])
                 {
                     switchForm = false;
+                    return;
                 }
             }
             switchForm =  true;
