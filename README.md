@@ -7,3 +7,6 @@
 + Находить незначимые скобки
 + Составлять СКНФ и СДНФ
 
+## Интерфейс программы:
+![image](https://user-images.githubusercontent.com/78251479/112076274-2c9af580-8b8b-11eb-8ba9-abffda45591d.png)
+
