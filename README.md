@@ -3,13 +3,13 @@
 ## Интерфейс программы:
 ![image](https://user-images.githubusercontent.com/78251479/112076274-2c9af580-8b8b-11eb-8ba9-abffda45591d.png)
 
-## Калькулятор логических формул. Умеет: <br>
-+ Считывать логические формулы и составлять таблицу истинности <br>
-+ Определять фиктивные переменные
-+ Определять, принимает ли формула противоположное значение на противоположных наборах переменных
-+ Преобразовывать формулу из инфиксной нотации в постфиксную
-+ Находить незначимые скобки
-+ Составлять СКНФ и СДНФ
+## Functionality: <br>
++ Read logical formulas and draw up a truth table
++ Define fictional variables
++ Determine if a formula takes the opposite value on opposite sets of variables
++ Convert formula from infix notation to postfix
++ Find insignificant parentheses
++ Make up PCNF and PDNF
 
 
 
